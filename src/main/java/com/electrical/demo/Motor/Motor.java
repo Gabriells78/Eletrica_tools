@@ -1,8 +1,18 @@
 package com.electrical.demo.Motor;
 
-import static com.electrical.demo.tools.Principal.raizDeTres;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+import static com.electrical.demo.tools.Principal.raizDeTres;
+@Table(name ="motor")
+@Entity(name = "motor")
+@Getter
+@Setter
 public class Motor {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
     private Enum TipoMotor;
     private Float PotenciaMotor;
     private String CategoriaConjugacao;
@@ -14,8 +24,6 @@ public class Motor {
     private Float NumeroDeVezesNominal;
     private Float FatorDePotencia;
     private Float Rendimento;
-    public double distancia;
-    public double cobreCondutividade = 58 * 1000;
 
     public Motor() {
     }
@@ -126,12 +134,29 @@ public class Motor {
     }
 
 
-    public void SeccaoCabo(double distancia) throws Exception {
-        double cabo;
-        cabo = (raizDeTres * distancia * getCorrentesNominais() * getFatorDePotencia()) / cobreCondutividade *(getTensoesNominais()*0.03);
-        System.out.printf("seccao do cabo: %.2f.",cabo);
+    public void SeccaoCabo(double distancia, double numeroCabos, double Resistencia, double Reatancia){
 
-        throw new NullPointerException("Informacoes do motor nao inseridas: ");
+        double cabo = distancia/1000;
+        double sin = Math.sqrt(1 - Math.pow(FatorDePotencia, 2));
+
+        distancia = (raizDeTres * CorrentesNominais * cabo *((Resistencia/numeroCabos)*FatorDePotencia+(Reatancia/numeroCabos)*sin
+        )/TensoesNominais);
+
+        double totalDistancia = distancia*100;
+
+        System.out.printf("Perda do circuito: %.4f.",totalDistancia );
+
+
+        if(totalDistancia<= 5){
+            System.out.println("\nLigacao circuito dentro das normas da NBR 5410!");
+        }else if(totalDistancia<5 && totalDistancia>10){
+            System.out.println("\nPerda proxima de 20% do torque e fora da norma!");
+        }else if(totalDistancia > 10) {
+            System.out.println("\nPerda consideravel do circuito e risco de travamento do motor" +
+                    " troque a seccao do cabo!");
+
+        }
+
     }
 
 

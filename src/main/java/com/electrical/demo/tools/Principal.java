@@ -2,6 +2,7 @@ package com.electrical.demo.tools;
 
 import com.electrical.demo.Motor.Motor;
 import com.electrical.demo.Motor.TipoMotor;
+import com.electrical.demo.repository.motorRepository;
 
 import java.sql.ClientInfoStatus;
 import java.util.*;
@@ -11,16 +12,15 @@ public class Principal {
     public double distancia;
     public double cobreCondutividade = 58 * 1000000;
     public List<Double> cabos= new ArrayList<>();
+    private motorRepository motorRepositorio;
+    private List<Motor> motores = new ArrayList<>();
     Scanner leitura = new Scanner(System.in);
+
 
     Motor motor = new Motor();
 
-    public List<Double> getCabos() {
-        return cabos;
-    }
-
-    public void setCabos(List<Double> cabos) {
-        this.cabos = cabos;
+    public Principal(motorRepository motor1){
+        this.motorRepositorio = motor1;
     }
 
     public void exibirMenu() throws Exception {
@@ -30,9 +30,10 @@ public class Principal {
 
         do{
             var menu = """
-					0-Sair.
+					\n0-Sair.
 					1-Cadastrar motor.
 					2-Dimensionar Secao Cabo.
+					3-Listar motores ja Cadastrados.
 					""";
             System.out.println(menu);
             opcao = leitura.nextInt();
@@ -45,6 +46,9 @@ public class Principal {
                 case 2:
                     DimensionarSecaoCabo();
                     break;
+                case 3: Listar_motores();
+                break;
+
             }
         } while (opcao!=0);
     }
@@ -56,7 +60,7 @@ public class Principal {
             System.out.println((i+1)+ "-" + tipos[i]);
         }
         leitura.nextLine();
-        System.out.println("Qual a potencia do motor: ");
+        System.out.println("Qual a potencia (hp/c) do motor: ");
         motor.setPotenciaMotor(leitura.nextFloat());
         System.out.println("Qual sua categoria de Conjugacao: ");
         motor.setCategoriaConjugacao(leitura.next());
@@ -64,7 +68,7 @@ public class Principal {
         motor.setRotacaoNominal(leitura.nextFloat());
         System.out.println("Qual a frequencia: ");
         motor.setFrequencia(leitura.nextInt());
-        System.out.println("Qual a sua tensao Nominal: ");
+        System.out.println("Qual a sua tensao de fechamento: ");
         motor.setTensoesNominais(leitura.nextInt());
         System.out.println("Qual sua corrente nominal: ");
         motor.setCorrentesNominais(leitura.nextFloat());
@@ -77,13 +81,38 @@ public class Principal {
         System.out.println("Qual o seu rendimento: ");
         motor.setRendimento(leitura.nextFloat());
         System.out.println(motor);
+
+        motorRepositorio.save(motor);
+
     }
 
     public void DimensionarSecaoCabo() throws Exception {
         System.out.println("qual a distancia: ");
         distancia = leitura.nextDouble();
-        motor.SeccaoCabo(distancia);
+//        System.out.println("qual o cosseno do cabo: ");
+//        var cosseno = leitura.nextDouble();
+        System.out.println("qual o numero de cabos por fase: ");
+        var numeroCabos = leitura.nextDouble();
+        System.out.println("qual a resistencia por metro do cabo: ");
+        var Resistencia = leitura.nextDouble();
+        System.out.println("qual a reatancia por metro do cabo: ");
+        var Reatancia = leitura.nextDouble();
+        motor.SeccaoCabo(distancia,numeroCabos,Resistencia,Reatancia);
 
     }
+
+    public void Listar_motores() throws Exception {
+        motores =  motorRepositorio.findAll();
+        motores.stream().forEach(System.out::println);
+    }
+
+    public List<Double> getCabos() {
+        return cabos;
+    }
+
+    public void setCabos(List<Double> cabos) {
+        this.cabos = cabos;
+    }
+
 }
 

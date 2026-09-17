@@ -10,4 +10,9 @@ public enum TipoMotor {
     TipoMotor(Integer Bill_tipe) {this.Bill_tipe = Bill_tipe;}
 
     public Integer getBill_type(){return Bill_tipe;}
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }
